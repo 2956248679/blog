@@ -23,12 +23,13 @@ jobs:
       - name: Build
         run: hugo --buildFuture --minify
 
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v4
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-avz --delete"
-          SOURCE: "public/"
-          REMOTE_HOST: "47.119.121.45"
-          REMOTE_USER: "root"
-          TARGET: "/opt/blog/site/"
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 47.119.121.45 >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" public/ root@47.119.121.45:/opt/blog/site/
