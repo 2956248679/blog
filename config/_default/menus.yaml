@@ -1,0 +1,43 @@
+main:
+  - name: 首页
+    pageRef: /
+    weight: 1
+    params: { icon: "home" }
+  - name: 文章
+    pageRef: /posts
+    weight: 10
+    params: { icon: "posts" }
+  - name: 项目
+    pageRef: /projects
+    weight: 20
+    params: { icon: "projects" }
+  - name: 标签
+    pageRef: /tags
+    weight: 30
+    params: { icon: "tags" }
+  - name: 归档
+    pageRef: /archives
+    weight: 40
+    params: { icon: "archive" }
+  - name: 关于
+    pageRef: /about
+    weight: 50
+    params: { icon: "about" }
+footer:
+  - name: 关于
+    pageRef: /about
+    weight: 10
+    params: { icon: "about" }
+  - name: RSS
+    url: /index.xml
+    weight: 20
+    params: { icon: "rss" }
+social:
+  - name: GitHub
+    url: https://github.com/2956248679
+    weight: 10
+    params: { icon: "github" }
+  - name: Email
+    url: mailto:2956248679@qq.com
+    weight: 20
+    params: { icon: "email" }

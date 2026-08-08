@@ -1,0 +1,7 @@
+services:
+  blog:
+    build: .
+    container_name: blog
+    ports:
+      - "80:80"
+    restart: unless-stopped

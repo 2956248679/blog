@@ -1,0 +1,58 @@
+description: "云计算运维 | Linux | Docker | Kubernetes"
+keywords: ["运维", "Linux", "Docker", "Nginx", "CI/CD"]
+defaultAuthor: "啊🐟"
+author:
+  name: "啊🐟"
+  title: "云计算运维工程师 (实习求职中)"
+  description: "熟悉 Linux 系统管理、Docker 容器化部署、Nginx 配置。正在学习 Shell 脚本与 K8s，目标成为云计算运维工程师。"
+  avatar: "/images/avatar.jpeg"
+  social:
+    - name: "GitHub"
+      url: "https://github.com/2956248679"
+      icon: "github"
+    - name: "Email"
+      url: "mailto:2956248679@qq.com"
+      icon: "email"
+header:
+  sticky: true
+  logo:
+    image: "/images/logo.png"
+    link: "/"
+  showThemeSwitch: true
+  showDarkModeSwitch: true
+  showContentWidthSwitch: false
+  showLanguageSwitch: false
+dock: "scroll"
+contentWidth: "56rem"
+toc:
+  enabled: true
+  position: "center"
+colorScheme: "default"
+themes:
+  default: { name: "Default", order: 1 }
+  nord: { name: "Nord", order: 2 }
+  sunset: { name: "Sunset", order: 3 }
+  dracula: { name: "Dracula", order: 4 }
+  abyss: { name: "Abyss", order: 5 }
+home:
+  recentPostsCount: 5
+  contentOrder: ["author-section", "recent-posts"]
+post:
+  showRelated: true
+  relatedPostsCount: 3
+comments:
+  enabled: false
+analytics:
+  enabled: false
+katex:
+  enabled: false
+mermaid:
+  enabled: true
+codeblock:
+  collapse:
+    enabled: true
+    defaultState: expanded
+readingProgress:
+  enabled: true
+dateFormat:
+  long: ":date_long"

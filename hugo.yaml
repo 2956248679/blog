@@ -1,0 +1,11 @@
+baseURL: https://www.lihuanyu.icu/
+title: "啊🐟的技术博客"
+theme: "hugo-narrow"
+hasCJKLanguage: true
+enableEmoji: false
+mainSections: ["posts"]
+pagination:
+  pagerSize: 6
+  path: "page"
+taxonomies:
+  tag: tags
