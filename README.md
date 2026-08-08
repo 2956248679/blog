@@ -1,4 +1,4 @@
-# 啊🐟的技术博客
+# 罗非瑜的技术博客
 
 [![Hugo](https://img.shields.io/badge/Hugo-0.164-blue?logo=hugo)](https://gohugo.io/)
 [![Docker](https://img.shields.io/badge/Docker-27.x-blue?logo=docker)](https://www.docker.com/)
@@ -173,4 +173,4 @@ git push
 
 ## License
 
-MIT © 啊🐟
+MIT © 罗非瑜
