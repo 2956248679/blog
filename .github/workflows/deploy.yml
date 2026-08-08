@@ -21,10 +21,10 @@ jobs:
           extended: true
 
       - name: Build
-        run: hugo --minify
+        run: hugo --buildFuture --minify
 
       - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v5
+        uses: easingthemes/ssh-deploy@v4
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-avz --delete"
