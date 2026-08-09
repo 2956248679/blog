@@ -8,8 +8,13 @@
 .ai-chat-msgs .msg{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.65;max-width:85%;word-break:break-word}
 .ai-chat-msgs .user{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .ai-chat-msgs .bot{background:var(--color-base-200,#f3f4f6);align-self:flex-start;border-bottom-left-radius:4px}
+.ai-chat-msgs .bot strong{color:var(--color-primary,#6366f1)}
+.ai-chat-msgs .bot code{background:var(--color-base-300,#ddd);padding:1px 5px;border-radius:4px;font-size:13px}
+.ai-chat-msgs .bot ol,.ai-chat-msgs .bot ul{margin:4px 0;padding-left:18px}
+.ai-chat-msgs .bot li{margin:2px 0}
+.ai-chat-msgs .bot p{margin:4px 0}
 .ai-chat-input{display:flex;padding:12px 14px;border-top:1px solid var(--color-base-300,#e5e7eb);gap:8px}
-.ai-chat-input input{flex:1;border:1px solid var(--color-base-300,#e5e7eb);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:var(--color-base-100,#fff)}
+.ai-chat-input input{flex:1;border:1px solid var(--color-base-300,#e5e7eb);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:var(--color-base-100,#fff);color:var(--color-base-content,#333)}
 .ai-chat-input input:focus{border-color:#6366f1}
 .ai-chat-input button{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
 @media(max-width:480px){.ai-chat-box{width:calc(100vw - 32px);right:16px;height:60vh;bottom:16px}}
@@ -29,6 +34,23 @@
 <script>
 var DK="sk-b498436e74c24e0d97a6c7aca6030ac4";
 function toggleChat(){document.getElementById('ai-chat-box').classList.toggle('open')}
+
+function md2html(t){
+  t=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  t=t.replace(/^### (.+)/gm,'<h4>$1</h4>');
+  t=t.replace(/^## (.+)/gm,'<h3>$1</h3>');
+  t=t.replace(/^- (.+)/gm,'<li>$1</li>');
+  t=t.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');
+  t=t.replace(/^\d+\.\s+(.+)/gm,'<li>$1</li>');
+  t=t.replace(/((?:<li>.*<\/li>\n?)+)/g,function(m){return m.indexOf('<ul>')>-1?m:'<ol>'+m+'</ol>'});
+  t=t.replace(/\n\n/g,'</p><p>');
+  t=t.replace(/\n/g,'<br>');
+  t='<p>'+t+'</p>';
+  return t;
+}
+
 async function sendMsg(){
   var i=document.getElementById('ai-input'),m=i.value.trim();
   if(!m)return;
@@ -38,15 +60,31 @@ async function sendMsg(){
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+DK},
       body:JSON.stringify({model:'deepseek-chat',messages:[
-        {role:'system',content:'你是半亩方塘博客的AI助手，帮助解答技术问题。尽量简洁回答。'},
+        {role:'system',content:'你是半亩方塘博客的AI助手，帮助解答技术问题。'},
         {role:'user',content:m}
       ],max_tokens:1000})
     });
     var d=await r.json();
     l.remove();
-    typeWriter(addMsg('','bot'),d.choices[0].message.content,20);
+    var reply=d.choices[0].message.content;
+    var el=addMsg('','bot');
+    typeWriter(el,reply,18);
   }catch(e){l.remove();addMsg('出错了，请稍后重试','bot')}
 }
+
 function addMsg(t,c){var d=document.createElement('div');d.className='msg '+c;d.textContent=t;document.getElementById('ai-chat-msgs').appendChild(d);d.scrollIntoView({behavior:'smooth'});return d}
-function typeWriter(e,t,s){e.textContent='';var i=0;function n(){if(i<t.length){e.textContent+=t.charAt(i);i++;e.scrollIntoView({behavior:'smooth'});setTimeout(n,s)}}n()}
+
+function typeWriter(el,text,speed){
+  el.textContent='';var i=0;
+  function type(){
+    if(i<text.length){
+      el.textContent+=text.charAt(i);i++;
+      el.scrollIntoView({behavior:'smooth'});
+      setTimeout(type,speed);
+    }else{
+      el.innerHTML=md2html(text);
+    }
+  }
+  type();
+}
 </script>
