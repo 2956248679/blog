@@ -1,0 +1,181 @@
+<style>
+  .ai-chat-box {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    width: 380px;
+    height: 520px;
+    background: var(--color-base-100, #fff);
+    border: 1px solid var(--color-base-300, #e5e7eb);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ai-chat-box.open { display: flex; }
+  .ai-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-base-300, #e5e7eb);
+    background: var(--color-base-200, #f9fafb);
+  }
+  .ai-chat-header span {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--color-base-content, #1f2937);
+  }
+  .ai-chat-header button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--color-base-content, #6b7280);
+    padding: 0 4px;
+  }
+  .ai-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ai-chat-messages .msg {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.65;
+    max-width: 85%;
+    word-break: break-word;
+  }
+  .ai-chat-messages .user {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .ai-chat-messages .bot {
+    background: var(--color-base-200, #f3f4f6);
+    color: var(--color-base-content, #333);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .ai-chat-messages .bot.temp {
+    opacity: .6;
+    font-style: italic;
+  }
+  .ai-chat-input {
+    display: flex;
+    padding: 12px 14px;
+    border-top: 1px solid var(--color-base-300, #e5e7eb);
+    gap: 8px;
+  }
+  .ai-chat-input input {
+    flex: 1;
+    border: 1px solid var(--color-base-300, #e5e7eb);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    background: var(--color-base-100, #fff);
+    color: var(--color-base-content, #333);
+    transition: border-color .2s;
+  }
+  .ai-chat-input input:focus { border-color: #6366f1; }
+  .ai-chat-input button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity .2s;
+  }
+  .ai-chat-input button:hover { opacity: .9; }
+
+  @media (max-width: 480px) {
+    .ai-chat-box { width: calc(100vw - 32px); right: 16px; height: 60vh; bottom: 16px; }
+  }
+</style>
+
+<div class="ai-chat-box" id="ai-chat-box">
+  <div class="ai-chat-header">
+    <span>✨ AI 助手</span>
+    <button onclick="toggleChat()">✕</button>
+  </div>
+
+  <div class="ai-chat-messages" id="ai-chat-msgs">
+    <div class="msg bot">
+      👋 你好！我是半亩方塘的 AI 助手。<br>可以问我关于网站或技术的问题。
+      <br><br>
+      <small style="opacity:.5">当前为前端演示，接入 API 后即可正常对话</small>
+    </div>
+  </div>
+
+  <div class="ai-chat-input">
+    <input id="ai-input" placeholder="输入问题…" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">发送</button>
+  </div>
+</div>
+
+<script>
+  function toggleChat() {
+    document.getElementById('ai-chat-box').classList.toggle('open');
+  }
+
+  async function sendMsg() {
+    const input = document.getElementById('ai-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMsg(msg, 'user');
+    input.value = '';
+
+    const loadEl = addMsg('思考中…', 'bot temp');
+
+    try {
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+      if (!r.ok) throw new Error('API error');
+      const d = await r.json();
+      loadEl.remove();
+      typeWriter(addMsg('', 'bot'), d.reply, 20);
+    } catch (e) {
+      loadEl.remove();
+      addMsg('⚠️ 后端 API 尚未接入。接入 DeepSeek API 后即可正常对话。', 'bot');
+    }
+  }
+
+  function addMsg(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + cls;
+    div.textContent = text;
+    document.getElementById('ai-chat-msgs').appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth' });
+    return div;
+  }
+
+  function typeWriter(el, text, speed) {
+    el.classList.remove('temp');
+    el.textContent = '';
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        el.textContent += text.charAt(i);
+        i++;
+        el.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(type, speed);
+      }
+    }
+    type();
+  }
+</script>
