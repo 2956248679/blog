@@ -21,7 +21,6 @@
 .ai-chat-msgs .bot li{margin:3px 0}
 .ai-chat-msgs .bot hr{border:none;border-top:1px solid var(--color-base-300,#ddd);margin:12px 0}
 .ai-chat-msgs .bot strong{color:#6366f1}
-.ai-chat-msgs .bot h1,.ai-chat-msgs .bot h2,.ai-chat-msgs .bot h3,.ai-chat-msgs .bot h4{margin:8px 0 4px;font-weight:700;color:var(--color-base-content,#333)}
 .ai-chat-input{display:flex;padding:12px 14px;border-top:1px solid var(--color-base-300,#e5e7eb);gap:8px}
 .ai-chat-input input{flex:1;border:1px solid var(--color-base-300,#e5e7eb);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:var(--color-base-100,#fff);color:var(--color-base-content,#333)}
 .ai-chat-input input:focus{border-color:#6366f1}
@@ -32,7 +31,7 @@
 <div class="ai-chat-box" id="ai-chat-box">
   <div class="ai-chat-header"><span>✨ AI 助手</span><button onclick="toggleChat()">✕</button></div>
   <div class="ai-chat-msgs" id="ai-chat-msgs">
-    <div class="msg bot">👋 你好！我是半亩方塘的 AI 助手，由 DeepSeek 驱动。<br>有什么想问的吗？</div>
+    <div class="msg bot">👋 你好！我是半亩方塘的 AI 助手。<br>有什么想问的吗？</div>
   </div>
   <div class="ai-chat-input">
     <input id="ai-input" placeholder="输入问题…" onkeydown="if(event.key==='Enter')sendMsg()">
@@ -49,32 +48,35 @@ function toggleChat(){document.getElementById('ai-chat-box').classList.toggle('o
 async function sendMsg(){
   var i=document.getElementById('ai-input'),m=i.value.trim();
   if(!m)return;
-  addMsg(m,'user');i.value='';var l=addMsg('...','bot');
+  addMsg(m,'user');i.value='';var el=addMsg('','bot');el.textContent='...';
   try{
     var r=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+DK},
-      body:JSON.stringify({model:'deepseek-chat',messages:[
-        {role:'system',content:'你是半亩方塘博客的AI助手。回答使用Markdown格式：标题用 ##，代码块用 ```，表格、列表均可使用。'},
+      body:JSON.stringify({model:'deepseek-chat',stream:true,messages:[
+        {role:'system',content:'你是半亩方塘博客的AI助手。请简洁回答，合理使用Markdown格式。'},
         {role:'user',content:m}
       ],max_tokens:2000})
     });
-    var d=await r.json();
-    l.remove();
-    var reply=d.choices[0].message.content;
-    var el=addMsg('','bot');
-    typeWriter(el,reply,15);
-  }catch(e){l.remove();addMsg('出错了，请稍后重试','bot')}
+    var reader=r.body.getReader(),decoder=new TextDecoder(),text='';
+    el.innerHTML='';
+    while(true){
+      var{done,value}=await reader.read();
+      if(done)break;
+      var chunk=decoder.decode(value,{stream:true});
+      var lines=chunk.split('\n');
+      for(var j=0;j<lines.length;j++){
+        var line=lines[j];
+        if(!line.startsWith('data: '))continue;
+        var data=line.slice(6);
+        if(data==='[DONE]')continue;
+        try{var json=JSON.parse(data);text+=json.choices[0].delta.content||'';}catch(e){}
+      }
+      el.innerHTML=marked.parse(text);
+      el.scrollIntoView({behavior:'smooth'});
+    }
+  }catch(e){el.innerHTML='出错了，请稍后重试'}
 }
 
 function addMsg(t,c){var d=document.createElement('div');d.className='msg '+c;d.textContent=t;document.getElementById('ai-chat-msgs').appendChild(d);d.scrollIntoView({behavior:'smooth'});return d}
-
-function typeWriter(el,text,speed){
-  el.textContent='';var i=0;
-  function type(){
-    if(i<text.length){el.textContent+=text.charAt(i);i++;el.scrollIntoView({behavior:'smooth'});setTimeout(type,speed)}
-    else{el.innerHTML=marked.parse(text)}
-  }
-  type();
-}
 </script>
