@@ -15,10 +15,6 @@ main:
     pageRef: /tags
     weight: 30
     params: { icon: "tags" }
-  - name: AI
-    pageRef: /ai
-    weight: 35
-    params: { icon: "sparkles" }
   - name: 归档
     pageRef: /archives
     weight: 40
