@@ -40,7 +40,6 @@
 </div>
 
 <script>
-var DK="sk-b498436e74c24e0d97a6c7aca6030ac4";
 marked.setOptions({breaks:true,gfm:true});
 
 function toggleChat(){document.getElementById('ai-chat-box').classList.toggle('open')}
@@ -50,13 +49,10 @@ async function sendMsg(){
   if(!m)return;
   addMsg(m,'user');i.value='';var el=addMsg('','bot');el.textContent='...';
   try{
-    var r=await fetch('https://api.deepseek.com/chat/completions',{
+    var r=await fetch('/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+DK},
-      body:JSON.stringify({model:'deepseek-v4-flash',stream:true,messages:[
-        {role:'system',content:'你是半亩方塘博客的AI助手。请简洁回答，合理使用Markdown格式。'},
-        {role:'user',content:m}
-      ],max_tokens:2000})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:m})
     });
     var reader=r.body.getReader(),decoder=new TextDecoder(),text='';
     el.innerHTML='';
