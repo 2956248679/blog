@@ -44,10 +44,14 @@ marked.setOptions({breaks:true,gfm:true});
 
 function toggleChat(){document.getElementById('ai-chat-box').classList.toggle('open')}
 
+var lastSend=0;
 async function sendMsg(){
+  var now=Date.now();
+  if(now-lastSend<3000){addMsg('请稍等几秒再发','bot');return}
+  lastSend=now;
   var i=document.getElementById('ai-input'),m=i.value.trim();
   if(!m)return;
-  addMsg(m,'user');i.value='';var el=addMsg('','bot');el.textContent='...';
+  addMsg(m,'user');i.value='';i.disabled=true;var el=addMsg('','bot');el.textContent='...';
   try{
     var r=await fetch('/api/chat',{
       method:'POST',
@@ -58,6 +62,7 @@ async function sendMsg(){
     el.innerHTML=marked.parse(d.reply);
     el.scrollIntoView({behavior:'smooth'});
   }catch(e){el.innerHTML='出错了，请稍后重试'}
+  i.disabled=false;
 }
 
 function addMsg(t,c){var d=document.createElement('div');d.className='msg '+c;d.textContent=t;document.getElementById('ai-chat-msgs').appendChild(d);d.scrollIntoView({behavior:'smooth'});return d}
