@@ -9,7 +9,7 @@
   <body class="bg-background text-foreground min-h-screen antialiased flex flex-col">
     {{ partial "ui/reading-progress.html" . }}
     {{ partial "navigation/header.html" . }}
-    <main id="page-container" class="mx-auto w-full px-4 py-6 flex-1" style="max-width: var(--content-width, {{ $contentWidth }})">
+    <main id="page-container" class="mx-auto w-full px-4 py-6" style="max-width: var(--content-width, {{ $contentWidth }})">
       {{ partial "navigation/breadcrumb.html" . }}
       {{ block "main" . }}{{ end }}
     </main>
